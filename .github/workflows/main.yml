@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 env:
-  IMAGE_NAME: yourusername/ball-game
+  IMAGE_NAME: mshams0369/ball-game
 
 jobs:
   build-and-push:
