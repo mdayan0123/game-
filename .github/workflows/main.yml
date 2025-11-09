@@ -3,7 +3,6 @@ name: Build and Push Docker image to Docker Hub
 on:
   push:
     branches: [ main ]
-    # also run on version tags like v1.2.3
     tags: [ 'v*.*.*' ]
 
 env:
@@ -18,7 +17,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Debug: show image name
+      - name: Debug - show image name
         run: |
           echo "IMAGE_NAME=${{ env.IMAGE_NAME }}"
 
