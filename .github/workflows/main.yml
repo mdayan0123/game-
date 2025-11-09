@@ -1,24 +1,22 @@
-name: Build and push Docker image to Docker Hub
+name: Build and Push to Docker Hub
 
 on:
   push:
     branches:
-      - main
+      - main  # Runs when you push to main branch
     tags:
-      - 'v*.*.*'
+      - 'v*.*.*'  # Optional: also runs when you push version tags
 
 env:
-  DOCKERHUB_REPO: mshams0369/${{ github.event.repository.name }}
+  IMAGE_NAME: ${{ github.repository }}  # Example: mshams0369/repo-name
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -26,15 +24,15 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: mshams0369
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
+          file: ./Dockerfile
           push: true
           tags: |
-            ${{ env.DOCKERHUB_REPO }}:latest
-            ${{ env.DOCKERHUB_REPO }}:${{ github.sha }}
-          file: ./Dockerfile
+            ${{ secrets.DOCKER_USERNAME }}/$(echo ${{ github.repository }} | cut -d'/' -f2):latest
+            ${{ secrets.DOCKER_USERNAME }}/$(echo ${{ github.repository }} | cut -d'/' -f2):${{ github.sha }}
