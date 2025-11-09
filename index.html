@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mini Ball Game</title>
+<style>
+  html,body{height:100%;margin:0;display:flex;align-items:center;justify-content:center;background:#071826;color:#e6eef6;font-family:Arial}
+  canvas{background:linear-gradient(#04202a,#062733);border-radius:8px;display:block}
+  .ui{position:fixed;top:12px;left:12px;font-size:13px}
+  button{margin-left:8px;padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:inherit}
+</style>
+</head>
+<body>
+<canvas id="c" width="640" height="360"></canvas>
+<div class="ui">Score: <span id="s">0</span> Lives: <span id="l">3</span>
+<button id="start">Start</button><button id="reset">Reset</button></div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let W=c.width,H=c.height,score=0,lives=3,running=false;
+const paddle={w:100,h:12,x:(W-100)/2,y:H-28,speed:6};
+const ball={r:8,x:W/2,y:H/2,vx:3,vy:-3};
+function draw(){ctx.clearRect(0,0,W,H);
+  // paddle
+  ctx.fillStyle='#7af59d';ctx.fillRect(paddle.x,paddle.y,paddle.w,paddle.h);
+  // ball
+  ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();}
+function step(){if(!running) return;
+  ball.x+=ball.vx;ball.y+=ball.vy;
+  if(ball.x<ball.r||ball.x>W-ball.r) ball.vx*=-1;
+  if(ball.y<ball.r) ball.vy*=-1;
+  if(ball.y+ball.r>paddle.y && ball.x>paddle.x && ball.x<paddle.x+paddle.w){ball.vy*=-1;score++;document.getElementById('s').textContent=score}
+  if(ball.y>H){lives--;document.getElementById('l').textContent=lives; if(lives<=0){running=false;alert('Game over. Score:'+score);}}
+  draw();}
+let left=false,right=false;window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')left=true; if(e.key==='ArrowRight')right=true});
+window.addEventListener('keyup',e=>{if(e.key==='ArrowLeft')left=false; if(e.key==='ArrowRight')right=false});
+function control(){if(left) paddle.x-=paddle.speed; if(right) paddle.x+=paddle.speed; paddle.x=Math.max(0,Math.min(W-paddle.w,paddle.x)); requestAnimationFrame(control)}
+control();
+let mouseDown=false; c.addEventListener('mousemove',e=>{if(mouseDown){const r=c.getBoundingClientRect();paddle.x=(e.clientX-r.left)-paddle.w/2}});
+c.addEventListener('mousedown',()=>mouseDown=true);window.addEventListener('mouseup',()=>mouseDown=false);
+function reset(){score=0;lives=3;document.getElementById('s').textContent=score;document.getElementById('l').textContent=lives; paddle.x=(W-paddle.w)/2; ball.x=W/2;ball.y=H/2;ball.vx=3;ball.vy=-3;running=false}
+document.getElementById('start').onclick=()=>{running=!running; if(running) loop()};
+document.getElementById('reset').onclick=reset;
+function loop(){step(); if(running) requestAnimationFrame(loop)}
+reset(); draw();
+</script>
+</body>
+</html>
