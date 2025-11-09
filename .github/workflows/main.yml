@@ -5,10 +5,6 @@ on:
     branches: [ main ]
     tags: [ 'v*.*.*' ]
 
-env:
-  # Full image name: mshams0369/<repo-name>
-  IMAGE_NAME: mshams0369/${{ github.event.repository.name }}
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -17,9 +13,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Debug - show image name
+      # Compute IMAGE_NAME at runtime and export to GITHUB_ENV.
+      # This avoids any shell-in-YAML mistakes and guarantees a valid "username/repo" format.
+      - name: Compute IMAGE_NAME
         run: |
-          echo "IMAGE_NAME=${{ env.IMAGE_NAME }}"
+          echo "GITHUB_REPOSITORY=$GITHUB_REPOSITORY"
+          # Extract repo name (part after the slash)
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          # Build image name as <docker-username>/<repo-name>
+          echo "IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/${REPO_NAME}" >> $GITHUB_ENV
+          echo "Computed IMAGE_NAME (masked in logs): ***/${REPO_NAME}"
+      
+      - name: Debug - show computed values
+        run: |
+          echo "GITHUB_REPOSITORY=$GITHUB_REPOSITORY"
+          echo "REPO_NAME=${GITHUB_REPOSITORY#*/}"
+          # The actual docker username will be masked in logs; this shows the repo portion only
+          echo "IMAGE_NAME will be: ***/${GITHUB_REPOSITORY#*/}"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
