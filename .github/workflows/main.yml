@@ -5,18 +5,20 @@ on:
     branches: [ main ]
 
 env:
-  # Full image name: mshams0369/<repo-name>
+  # full image name: mshams0369/<repo-name>
   IMAGE_NAME: mshams0369/${{ github.event.repository.name }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Debug: show image name
-        run: echo "IMAGE_NAME=${{ env.IMAGE_NAME }}"   # secret masked, repo name visible
+        run: |
+          echo "IMAGE_NAME=${{ env.IMAGE_NAME }}"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
