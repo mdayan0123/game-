@@ -3,20 +3,17 @@ name: Build and Push to Docker Hub
 on:
   push:
     branches:
-      - main  # Runs when you push to main branch
-    tags:
-      - 'v*.*.*'  # Optional: also runs when you push version tags
+      - main
 
 env:
-  IMAGE_NAME: ${{ github.repository }}  # Example: mshams0369/repo-name
+  # docker image full name: mshams0369/<repo-name>
+  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -34,5 +31,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/$(echo ${{ github.repository }} | cut -d'/' -f2):latest
-            ${{ secrets.DOCKER_USERNAME }}/$(echo ${{ github.repository }} | cut -d'/' -f2):${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
